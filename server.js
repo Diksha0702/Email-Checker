@@ -16,7 +16,8 @@ app.get("/", (req, res) => {
 
 const upload = multer({ dest: "uploads/" });
 
-const API_KEY = "process.env.API_KEY";
+const API_KEY = process.env.API_KEY;
+console.log("API KEY:", API_KEY);
 
 // ✅ Format check
 function isValidFormat(email) {
@@ -115,10 +116,10 @@ app.post("/upload", upload.single("file"), async (req, res) => {
             status = "risky";
             reason = "Unknown response";
           }
-        } catch {
+        } catch (err) {
+          console.log("API ERROR:", err.response?.data || err.message);
           status = "error";
-          reason = "API error";
-          score -= 20;
+          reason = "API failed";
         }
       }
 
