@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Email Checker</title>
+    <style>
+      body {
+        font-family: Arial;
+        padding: 30px;
+        background: #f4f6f8;
+      }
+
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 700px;
+        margin: auto;
+      }
+
+      h2 {
+        margin-bottom: 15px;
+      }
+
+      button {
+        margin-top: 10px;
+        padding: 10px 15px;
+        cursor: pointer;
+      }
+
+      .summary {
+        margin-top: 15px;
+        font-weight: bold;
+      }
+
+      table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .valid {
+        color: green;
+      }
+      .invalid,
+      .invalid_format {
+        color: red;
+      }
+      .risky {
+        color: orange;
+      }
+      .duplicate {
+        color: purple;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Email Checker Tool</h2>
+
+      <input type="file" id="fileInput" />
+      <br />
+      <button onclick="uploadFile()">Upload & Check</button>
+
+      <div class="summary" id="summary"></div>
+      <a id="downloadLink" style="display: none">
+        <button>Download Cleaned Excel</button>
+      </a>
+
+      <table id="resultsTable">
+        <thead>
+          <tr>
+            <th>Row</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Reason</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <script>
+      async function uploadFile() {
+        let file = document.getElementById("fileInput").files[0];
+
+        if (!file) {
+          alert("Please select a file");
+          return;
+        }
+
+        let formData = new FormData();
+        formData.append("file", file);
+
+        let res = await fetch("http://localhost:3000/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        let data = await res.json();
+
+        // Summary
+        document.getElementById("summary").innerText =
+          `Valid: ${data.summary.valid} | Invalid: ${data.summary.invalid} | Risky: ${data.summary.risky} | Duplicate: ${data.summary.duplicate}`;
+
+        if (data.download) {
+          let link = document.getElementById("downloadLink");
+          link.href = data.download;
+          link.style.display = "block";
+        }
+
+        // Table
+        let tbody = document.querySelector("#resultsTable tbody");
+        tbody.innerHTML = "";
+
+        data.results.forEach((r) => {
+          let row = document.createElement("tr");
+
+          row.innerHTML = `
+      <td>${r.row}</td>
+      <td>${r.email}</td>
+      <td class="${r.status}">${r.status}</td>
+      <td>${r.reason}</td>
+      <td>${r.score}%</td>
+    `;
+
+          tbody.appendChild(row);
+        });
+      }
+    </script>
+  </body>
+</html>
