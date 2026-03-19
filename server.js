@@ -11,7 +11,7 @@ app.use(cors());
 
 const upload = multer({ dest: "uploads/" });
 
-const API_KEY = "b6dfc0dee0bf4ecea8c50158c95dbdcb";
+const API_KEY = "process.env.API_KEY";
 
 // ✅ Format check
 function isValidFormat(email) {
