@@ -98,10 +98,13 @@
         let formData = new FormData();
         formData.append("file", file);
 
-        let res = await fetch("http://localhost:3000/upload", {
-          method: "POST",
-          body: formData,
-        });
+        let res = await fetch(
+          "https://email-checker-production-2ff8.up.railway.app/upload",
+          {
+            method: "POST",
+            body: formData,
+          },
+        );
 
         let data = await res.json();
 
