@@ -80,6 +80,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
           );
 
           let apiData = response.data;
+          console.log(response.data);
 
           if (apiData.disposable === true) {
             status = "invalid";
