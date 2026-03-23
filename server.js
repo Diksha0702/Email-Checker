@@ -17,6 +17,7 @@ app.get("/", (req, res) => {
 const upload = multer({ dest: "uploads/" });
 
 const API_KEY = process.env.API_KEY;
+console.log("ENV CHECK:", Object.keys(process.env));
 console.log("API KEY:", API_KEY);
 if (!API_KEY) {
   console.log("❌ API KEY MISSING - CHECK RAILWAY VARIABLES");
