@@ -17,11 +17,11 @@ app.get("/", (req, res) => {
 const upload = multer({ dest: "uploads/" });
 
 const API_KEY = process.env.API_KEY;
-console.log("ENV CHECK:", Object.keys(process.env));
-console.log("API KEY:", API_KEY);
-if (!API_KEY) {
-  console.log("❌ API KEY MISSING - CHECK RAILWAY VARIABLES");
-}
+// console.log("ENV CHECK:", Object.keys(process.env));
+// console.log("API KEY:", API_KEY);
+// if (!API_KEY) {
+//   console.log("❌ API KEY MISSING - CHECK RAILWAY VARIABLES");
+// }
 
 // ✅ Format check
 function isValidFormat(email) {
@@ -85,7 +85,6 @@ app.post("/upload", upload.single("file"), async (req, res) => {
           );
 
           let apiData = response.data;
-          console.log(response.data);
 
           if (apiData.disposable === true) {
             status = "invalid";
