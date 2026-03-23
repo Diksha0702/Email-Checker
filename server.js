@@ -18,6 +18,9 @@ const upload = multer({ dest: "uploads/" });
 
 const API_KEY = process.env.API_KEY;
 console.log("API KEY:", API_KEY);
+if (!API_KEY) {
+  console.log("❌ API KEY MISSING - CHECK RAILWAY VARIABLES");
+}
 
 // ✅ Format check
 function isValidFormat(email) {
@@ -77,6 +80,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         try {
           let response = await axios.get(
             `https://api.zerobounce.net/v2/validate?api_key=${API_KEY}&email=${email}`,
+            { timeout: 5000 },
           );
 
           let apiData = response.data;
