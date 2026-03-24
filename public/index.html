@@ -17,19 +17,23 @@
         margin: auto;
       }
 
-      h2 {
-        margin-bottom: 15px;
-      }
-
       button {
         margin-top: 10px;
         padding: 10px 15px;
         cursor: pointer;
       }
 
-      .summary {
-        margin-top: 15px;
-        font-weight: bold;
+      .valid {
+        color: green;
+      }
+      .invalid {
+        color: red;
+      }
+      .risky {
+        color: orange;
+      }
+      .duplicate {
+        color: purple;
       }
 
       table {
@@ -43,22 +47,9 @@
         padding: 8px;
         border-bottom: 1px solid #ddd;
       }
-
-      .valid {
-        color: green;
-      }
-      .invalid,
-      .invalid_format {
-        color: red;
-      }
-      .risky {
-        color: orange;
-      }
-      .duplicate {
-        color: purple;
-      }
     </style>
   </head>
+
   <body>
     <div class="container">
       <h2>Email Checker Tool</h2>
@@ -67,12 +58,13 @@
       <br />
       <button onclick="uploadFile()">Upload & Check</button>
 
-      <div class="summary" id="summary"></div>
+      <div id="summary"></div>
+
       <a id="downloadLink" style="display: none">
         <button>Download Cleaned Excel</button>
       </a>
 
-      <table id="resultsTable">
+      <table>
         <thead>
           <tr>
             <th>Row</th>
@@ -82,7 +74,7 @@
             <th>Score</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="resultsTable"></tbody>
       </table>
     </div>
 
@@ -91,7 +83,7 @@
         let file = document.getElementById("fileInput").files[0];
 
         if (!file) {
-          alert("Please select a file");
+          alert("Select file");
           return;
         }
 
@@ -103,34 +95,37 @@
           body: formData,
         });
 
+        if (!res.ok) {
+          alert("Upload failed");
+          return;
+        }
+
         let data = await res.json();
 
-        // Summary
         document.getElementById("summary").innerText =
-          `Valid: ${data.summary.valid} | Invalid: ${data.summary.invalid} | Risky: ${data.summary.risky} | Duplicate: ${data.summary.duplicate}`;
+          `Valid: ${data.summary.valid} | Invalid: ${data.summary.invalid} | Risky: ${data.summary.risky}`;
 
         if (data.download) {
           let link = document.getElementById("downloadLink");
-          link.href = data.download;
+          link.href = window.location.origin + data.download;
           link.style.display = "block";
         }
 
-        // Table
-        let tbody = document.querySelector("#resultsTable tbody");
-        tbody.innerHTML = "";
+        let table = document.getElementById("resultsTable");
+        table.innerHTML = "";
 
         data.results.forEach((r) => {
-          let row = document.createElement("tr");
+          let tr = document.createElement("tr");
 
-          row.innerHTML = `
-      <td>${r.row}</td>
-      <td>${r.email}</td>
-      <td class="${r.status}">${r.status}</td>
-      <td>${r.reason}</td>
-      <td>${r.score}%</td>
-    `;
+          tr.innerHTML = `
+            <td>${r.row}</td>
+            <td>${r.email}</td>
+            <td class="${r.status}">${r.status}</td>
+            <td>${r.reason}</td>
+            <td>${r.score}%</td>
+          `;
 
-          tbody.appendChild(row);
+          table.appendChild(tr);
         });
       }
     </script>
