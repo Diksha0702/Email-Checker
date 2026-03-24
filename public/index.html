@@ -1,132 +1,410 @@
 <!doctype html>
 <html>
   <head>
-    <title>Email Checker</title>
+    <title>Email Validator</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
+      * {
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
       body {
-        font-family: Arial;
-        padding: 30px;
-        background: #f4f6f8;
+        margin: 0;
+        background: linear-gradient(135deg, #0f172a, #020617);
+        color: white;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        min-height: 100vh;
       }
 
       .container {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        max-width: 700px;
-        margin: auto;
+        width: 900px;
+        background: #0b1220;
+        border-radius: 20px;
+        padding: 50px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+
+        /* 🔥 IMPORTANT */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 25px;
       }
 
-      button {
+      h1 {
+        margin: 0;
+        font-size: 30px;
+      }
+
+      p {
+        margin: 0;
+        color: #94a3b8;
+      }
+
+      /* UPLOAD BOX */
+      .upload-box {
+        width: 100%;
+        max-width: 500px;
+
+        border: 2px dashed #334155;
+        border-radius: 16px;
+        padding: 60px 20px;
+
+        text-align: center;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .upload-box:hover {
+        border-color: #fbbf24;
+        background: rgba(251, 191, 36, 0.05);
+      }
+
+      .upload-box h3 {
+        margin: 0;
+        font-weight: 500;
+      }
+
+      .upload-box span {
+        display: block;
+        margin-top: 8px;
+        color: #64748b;
+        font-size: 14px;
+      }
+
+      input {
+        display: none;
+      }
+
+      .loader {
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-top: 4px solid #fbbf24;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        margin: 20px auto;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .progress-container {
+        width: 100%;
+        background: #1f2937;
+        border-radius: 10px;
         margin-top: 10px;
-        padding: 10px 15px;
+      }
+
+      .progress-bar {
+        height: 8px;
+        width: 0%;
+        background: #fbbf24;
+      }
+
+      /* BUTTON */
+      .btn {
+        padding: 14px 40px;
+        background: #fbbf24;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
         cursor: pointer;
       }
 
-      .valid {
-        color: green;
+      .btn:hover {
+        opacity: 0.9;
       }
-      .invalid {
-        color: red;
+
+      .changebtn {
+        padding: 10px 16px;
+        background: #fbbf24 !important;
+        border: none !important;
+        border-radius: 10px;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        color: black !important;
       }
-      .risky {
-        color: orange;
+
+      .changebtn:hover {
+        opacity: 0.9 !important;
       }
-      .duplicate {
-        color: purple;
+
+      .downbtn {
+        background: #fbbf24 !important;
+        border: none !important;
+        border-radius: 10px;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        color: black !important;
+        padding: 10px 16px;
+      }
+
+      .downbtn:hover {
+        opacity: 0.9 !important;
+      }
+
+      /* 🔴 PROPER HIDE */
+      .hidden {
+        display: none !important;
+      }
+
+      /* SUMMARY */
+      .summary {
+        width: 100%;
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .card {
+        flex: 1;
+        background: #111827;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+      }
+
+      .card span {
+        display: block;
+        font-size: 20px;
+        margin-top: 5px;
+      }
+
+      /* TABLE */
+      .table-section {
+        width: 100%;
+        margin-top: 20px;
       }
 
       table {
         width: 100%;
-        margin-top: 20px;
         border-collapse: collapse;
       }
 
       th,
       td {
-        padding: 8px;
-        border-bottom: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
       }
+
+      th {
+        color: #94a3b8;
+        font-size: 13px;
+      }
+
+      tr {
+        border-top: 1px solid #1f2937;
+      }
+
+      tr:hover {
+        background: #111827;
+      }
+
+      /* BADGES */
+      .badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+      }
+
+      .valid {
+        background: #064e3b;
+        color: #34d399;
+      }
+      .invalid {
+        background: #7f1d1d;
+        color: #f87171;
+      }
+      .risky {
+        background: #78350f;
+        color: #fbbf24;
+      }
+
+      /* PAGINATION */
+      .pagination {
+        margin-top: 15px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      /* .pagination button {
+        background: #1f2937;
+        border: none;
+        padding: 10px 16px;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+      } */
     </style>
   </head>
 
   <body>
     <div class="container">
-      <h2>Email Checker Tool</h2>
+      <h1>Email Validator</h1>
+      <p>Upload your Excel file to clean and verify emails</p>
 
-      <input type="file" id="fileInput" />
-      <br />
-      <button onclick="uploadFile()">Upload & Check</button>
+      <!-- UPLOAD -->
+      <label class="upload-box" id="uploadBox">
+        <h3>Drag & Drop Excel File</h3>
+        <span id="fileName">or click to upload</span>
+        <input type="file" id="fileInput" />
+      </label>
 
-      <div id="summary"></div>
+      <button class="btn" id="validateBtn" onclick="uploadFile()">
+        Validate Emails
+      </button>
 
+      <div id="loader" class="loader hidden"></div>
+
+      <div class="progress-container hidden" id="progressContainer">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <!-- 🔴 HIDDEN BY DEFAULT -->
+      <div class="summary hidden" id="summary">
+        <div class="card">Valid <span id="validCount">0</span></div>
+        <div class="card">Invalid <span id="invalidCount">0</span></div>
+        <div class="card">Risky <span id="riskyCount">0</span></div>
+      </div>
+
+      <div class="table-section hidden" id="tableSection">
+        <table>
+          <thead>
+            <tr>
+              <th>Row</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Reason</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody id="resultsTable"></tbody>
+        </table>
+
+        <div class="pagination">
+          <button onclick="prevPage()" class="changebtn">Prev</button>
+          <button onclick="nextPage()" class="changebtn">Next</button>
+        </div>
+      </div>
       <a id="downloadLink" style="display: none">
-        <button>Download Cleaned Excel</button>
+        <button class="downbtn">Download Cleaned File</button>
       </a>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Row</th>
-            <th>Email</th>
-            <th>Status</th>
-            <th>Reason</th>
-            <th>Score</th>
-          </tr>
-        </thead>
-        <tbody id="resultsTable"></tbody>
-      </table>
     </div>
 
     <script>
+      const uploadBox = document.getElementById("uploadBox");
+      const fileInput = document.getElementById("fileInput");
+      const fileNameText = document.getElementById("fileName");
+      const loader = document.getElementById("loader");
+      const progressBar = document.getElementById("progressBar");
+      const progressContainer = document.getElementById("progressContainer");
+      const validateBtn = document.getElementById("validateBtn");
+
+      fileInput.onchange = () => {
+        fileNameText.innerText = fileInput.files[0].name;
+      };
+
+      uploadBox.ondrop = (e) => {
+        e.preventDefault();
+        fileInput.files = e.dataTransfer.files;
+        fileNameText.innerText = fileInput.files[0].name;
+      };
+
+      uploadBox.ondragover = (e) => e.preventDefault();
+
+      let allResults = [];
+      let currentPage = 1;
+      const perPage = 10;
+
+      function renderTable() {
+        let table = document.getElementById("resultsTable");
+        table.innerHTML = "";
+
+        let start = (currentPage - 1) * perPage;
+        let end = start + perPage;
+
+        let pageData = allResults.slice(start, end);
+
+        pageData.forEach((r) => {
+          let tr = document.createElement("tr");
+
+          tr.innerHTML = `
+      <td>${r.row}</td>
+      <td>${r.email}</td>
+      <td><span class="badge ${r.status}">${r.status}</span></td>
+      <td>${r.reason}</td>
+      <td>${r.score}%</td>
+    `;
+
+          table.appendChild(tr);
+        });
+      }
+
+      function nextPage() {
+        if (currentPage * perPage < allResults.length) {
+          currentPage++;
+          renderTable();
+        }
+      }
+
+      function prevPage() {
+        if (currentPage > 1) {
+          currentPage--;
+          renderTable();
+        }
+      }
+
       async function uploadFile() {
         let file = document.getElementById("fileInput").files[0];
-
-        if (!file) {
-          alert("Select file");
-          return;
-        }
+        if (!file) return alert("Select file");
 
         let formData = new FormData();
         formData.append("file", file);
+
+        loader.classList.remove("hidden");
+        progressContainer.classList.remove("hidden");
+        validateBtn.disabled = true;
 
         let res = await fetch("/upload", {
           method: "POST",
           body: formData,
         });
 
-        if (!res.ok) {
-          alert("Upload failed");
-          return;
-        }
-
         let data = await res.json();
 
-        document.getElementById("summary").innerText =
-          `Valid: ${data.summary.valid} | Invalid: ${data.summary.invalid} | Risky: ${data.summary.risky}`;
+        loader.classList.add("hidden");
+        validateBtn.disabled = false;
+
+        // 🔥 SHOW ONLY AFTER RESPONSE
+        document.getElementById("summary").classList.remove("hidden");
+        document.getElementById("tableSection").classList.remove("hidden");
+
+        document.getElementById("validCount").innerText = data.summary.valid;
+        document.getElementById("invalidCount").innerText =
+          data.summary.invalid;
+        document.getElementById("riskyCount").innerText = data.summary.risky;
+
+        allResults = data.results;
+        currentPage = 1;
+        renderTable();
 
         if (data.download) {
           let link = document.getElementById("downloadLink");
-          link.href = window.location.origin + data.download;
+          link.href = data.download;
           link.style.display = "block";
         }
-
-        let table = document.getElementById("resultsTable");
-        table.innerHTML = "";
-
-        data.results.forEach((r) => {
-          let tr = document.createElement("tr");
-
-          tr.innerHTML = `
-            <td>${r.row}</td>
-            <td>${r.email}</td>
-            <td class="${r.status}">${r.status}</td>
-            <td>${r.reason}</td>
-            <td>${r.score}%</td>
-          `;
-
-          table.appendChild(tr);
-        });
       }
     </script>
   </body>

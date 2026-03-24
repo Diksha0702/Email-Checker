@@ -11,11 +11,6 @@ const app = express();
 app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
 
-// ✅ ROOT ROUTE
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
 const upload = multer({ dest: "uploads/" });
 
 // ✅ FORMAT CHECK
@@ -28,7 +23,7 @@ function isRole(email) {
   return /^(info|admin|support|sales|contact)/i.test(email);
 }
 
-// ✅ LOAD DISPOSABLE DOMAINS
+// ✅ LOAD DISPOSABLE LIST
 let disposableSet = new Set();
 
 async function loadDisposableList() {
@@ -37,29 +32,19 @@ async function loadDisposableList() {
       "https://raw.githubusercontent.com/disposable-email-domains/disposable-email-domains/master/disposable_email_blocklist.conf",
     );
 
-    disposableSet = new Set(
-      res.data
-        .split("\n")
-        .map((d) => d.trim())
-        .filter(Boolean),
-    );
-
-    console.log("✅ Disposable domains loaded:", disposableSet.size);
-  } catch (err) {
-    console.log("❌ Failed to load disposable list");
+    disposableSet = new Set(res.data.split("\n").map((d) => d.trim()));
+    console.log("Disposable domains loaded:", disposableSet.size);
+  } catch {
+    console.log("Failed to load disposable list");
   }
 }
-
 loadDisposableList();
 
-// ✅ CHECK DISPOSABLE
+// ✅ DISPOSABLE CHECK
 function isDisposable(email) {
   const domain = email.split("@")[1];
-  return disposableSet.size > 0 && disposableSet.has(domain);
+  return disposableSet.has(domain);
 }
-
-// ✅ MX CACHE (⚡ performance boost)
-let domainCache = {};
 
 // ✅ MX CHECK
 async function hasMX(domain) {
@@ -71,6 +56,7 @@ async function hasMX(domain) {
   }
 }
 
+// 🔥 MAIN API
 app.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const workbook = XLSX.readFile(req.file.path);
@@ -108,14 +94,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       } else {
         let domain = email.split("@")[1];
 
-        // ⚡ MX CACHE
-        let mxValid;
-        if (domainCache[domain] !== undefined) {
-          mxValid = domainCache[domain];
-        } else {
-          mxValid = await hasMX(domain);
-          domainCache[domain] = mxValid;
-        }
+        const mxValid = await hasMX(domain);
 
         if (!mxValid) {
           status = "invalid";
@@ -131,7 +110,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 
         if (isRole(email)) {
           score -= 20;
-          reason = "Role-based";
+          reason = "Role-based email";
         }
 
         if (mxValid) {
@@ -163,7 +142,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       }
     }
 
-    // ✅ CREATE CLEAN FILE
+    // CREATE CLEAN FILE
     const newSheet = XLSX.utils.json_to_sheet(cleanedRows);
     const newWorkbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(newWorkbook, newSheet, "Cleaned Data");
@@ -196,4 +175,4 @@ app.get("/download", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("🚀 Server running on port", PORT));
+app.listen(PORT, () => console.log("Server running on port", PORT));
